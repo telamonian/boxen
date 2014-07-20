@@ -5,8 +5,11 @@ module Boxen
 
     # The keychain proxy we use to provide isolation and a friendly
     # message in security prompts.
-
-    HELPER = File.expand_path "../../../script/Boxen", __FILE__
+    if (/darwin/ =~ RUBY_PLATFORM) != nil
+      HELPER = File.expand_path "../../../script/Boxen", __FILE__
+    else
+      HELPER = File.expand_path "../../../script/Boxen-linux", __FILE__
+    end
 
     # The service name to use when loading/saving passwords.
 

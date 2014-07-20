@@ -4,7 +4,7 @@ class Boxen::Preflight::OS < Boxen::Preflight
   SUPPORTED_RELEASES = %w(10.8 10.9)
 
   def ok?
-    osx? && supported_release?
+    (linux? || (osx? && supported_release?))
   end
 
   def run
@@ -15,6 +15,10 @@ class Boxen::Preflight::OS < Boxen::Preflight
 
   def osx?
     `uname -s`.chomp == "Darwin"
+  end
+
+  def linux?
+    `uname -s`.chomp == "Linux"
   end
 
   def supported_release?

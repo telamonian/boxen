@@ -1,0 +1,6 @@
+#!/bin/sh
+
+set -e
+
+cd $(dirname "$0")/..
+cc -g -O2 -Wall `pkg-config --cflags glib-2.0 gnome-keyring-1`-o script/Boxen-linux src/keyring-helper.c `pkg-config --libs glib-2.0 gnome-keyring-1`
