@@ -79,6 +79,7 @@ int main(int argc, char** argv) {
     }
 
     fwrite(item, 1, strlen(item), stdout);
+    gnome_keyring_free_password(item);
   }
 
   return 0;
