@@ -11,8 +11,13 @@ class Boxen::Postflight::Env < Boxen::Postflight
 
     home = ENV["BOXEN_HOME"] || "/opt/boxen"
     return unless File.file? "#{home}/env.sh"
-
+  if RUBY_PLATFORM =~ /Darwin/
     `find #{home}/env* -type f 2>&1 | sort | xargs /sbin/md5 | /sbin/md5 -q`.strip
+  elsif RUBY_PLATFORM =~ /Debian/
+    #TODO: figure out linux equivalent of above darwin line. maybe:
+    `find #{home}/env* -type f 2>&1 | sort | xargs /usr/bin/md5sum | /usr/bin/md5sum --quiet`.strip
+  end
+    
   end
 
   # The checksum when this file was loaded.
