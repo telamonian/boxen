@@ -300,6 +300,16 @@ module Boxen
     def user
       @user || ENV["USER"]
     end
+    
+    def group
+      if RUBY_PLATFORM =~ /darwin/
+        @group || "staff"
+      elsif RUBY_PLATFORM =~ /linux/
+        @group || user
+      else
+        raise "unsupported OS"
+      end
+    end
 
     attr_writer :user
 

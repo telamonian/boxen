@@ -39,7 +39,7 @@ module Boxen
 
     def get(service)
       cmd = shellescape(HELPER, service, login)
-
+      
       result = `#{cmd}`.strip
       $?.success? ? result : nil
     end

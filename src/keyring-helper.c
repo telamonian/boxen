@@ -3,10 +3,10 @@
 #include <string.h>
 #include "gnome-keyring.h"
 
-#define REPORT_KEYCHAIN_ERROR(err_val)  do { \
-fprintf(stderr, "Boxen Keychain Helper: Encountered gnome keyring error code: %d\n", err_val); \
+#define REPORT_KEYRING_ERROR(err_val)  do { \
+fprintf(stderr, "Boxen Keyring Helper: Encountered gnome keyring error code: %d at %d:%s\n", err_val,__LINE__,__FILE__); \
+fprintf(stderr, "Error: %s\n", gnome_keyring_result_to_message(err_val)); \
 } while(0)
-//fprintf(stderr, "Error: %s\n", CFStringGetCStringPtr(SecCopyErrorMessageString(err_val, NULL), kCFStringEncodingMacRoman)); 
 
 GnomeKeyringPasswordSchema GenericPassword = {
   GNOME_KEYRING_ITEM_CHAINED_KEYRING_PASSWORD,
@@ -31,7 +31,7 @@ int key_exists_p(
   } else {
     if (ret != GNOME_KEYRING_RESULT_NO_MATCH) {
        // Item not found is not an error in predicate method context.
-       REPORT_KEYCHAIN_ERROR(ret);
+       REPORT_KEYRING_ERROR(ret);
     }
     return ret;
   }
@@ -57,14 +57,14 @@ int main(int argc, char** argv) {
     GnomeKeyringResult create_key = gnome_keyring_store_password_sync(&GenericPassword, NULL, service, password, "service", service, "account", login, NULL);
 
     if (create_key != 0) {
-      REPORT_KEYCHAIN_ERROR(create_key);
+      REPORT_KEYRING_ERROR(create_key);
       return 1;
     }
   } else if (password != NULL && strlen(password) == 0) {
     if (key_exists_p(service, login, item) == 0) {
       GnomeKeyringResult ret = gnome_keyring_delete_password_sync(&GenericPassword, "service", service, "account", login, NULL);
       if (ret != GNOME_KEYRING_RESULT_OK) {
-        REPORT_KEYCHAIN_ERROR(ret);
+        REPORT_KEYRING_ERROR(ret);
       }
     }
   } else {
@@ -74,7 +74,7 @@ int main(int argc, char** argv) {
       return find_key;
     }
     if (find_key != 0) {
-      REPORT_KEYCHAIN_ERROR(find_key);
+      REPORT_KEYRING_ERROR(find_key);
       return 1;
     }
 

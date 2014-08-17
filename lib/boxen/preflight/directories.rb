@@ -5,12 +5,12 @@ class Boxen::Preflight::Directories < Boxen::Preflight
   def ok?
     homedir_directory_exists? &&
       homedir_owner == config.user &&
-      homedir_group == 'staff'
+      homedir_group == config.group
   end
 
   def run
     Boxen::Util.sudo("/bin/mkdir", "-p", config.homedir) &&
-      Boxen::Util.sudo("/usr/sbin/chown", "#{config.user}:staff", config.homedir)
+      Boxen::Util.sudo("/bin/chown", "#{config.user}:#{config.group}", config.homedir)
   end
 
   private
