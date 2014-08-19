@@ -1,0 +1,43 @@
+#!/bin/bash
+# set up user environment so that the gnome-keyring stuff will actually work. 
+# if running this script directly, run with `source keyring-env` so that the export statement works correctly
+
+# if dbus is already running get its environment variables. if it's not running start it
+# some of this is taken from http://ubuntuforums.org/showthread.php?t=1059023
+DBUS_PID=$(pidof -s dbus-daemon)
+if [[ "${DBUS_PID}" != "" ]]; then
+    # Search these processes for the session variable 
+    # (they are run as the current user and have the DBUS session variable set)
+    compatiblePrograms=( nautilus kdeinit kded4 pulseaudio trackerd )
+    
+    # Attempt to get a program pid
+    for index in ${compatiblePrograms[@]}; do
+        PID=$(pidof -s ${index})
+        if [[ "${PID}" != "" ]]; then
+            break
+        fi
+    done
+    if [[ "${PID}" == "" ]]; then
+        echo "keyring-env could not detect active login session" 1>&2
+        return 1
+    fi
+    
+    QUERY_ENVIRON="$(tr '\0' '\n' < /proc/${PID}/environ | grep "DBUS_SESSION_BUS_ADDRESS" | cut -d "=" -f 2-)"
+    if [[ "${QUERY_ENVIRON}" != "" ]]; then
+        export DBUS_SESSION_BUS_ADDRESS="${QUERY_ENVIRON}"
+        echo "${DBUS_SESSION_BUS_ADDRESS}"
+    else
+        echo "keyring-env could not find dbus session ID in user environment." 1>&2
+        return 1
+    fi
+else
+    : # put stuff to start dbus and get environment vars here
+fi
+
+# make sure that the gnome-keyring-daemon is actually running, and start it if it's not
+GNOME_KEYRING_PID=$(pidof -s gnome-keyring-daemon)
+if [[ "${GNOME_KEYRING_PID}" != "" ]]; then
+    : # gnome-keyring-daemon is running, so we don't need to do anything
+else
+    : # put stuff to start gnome-keyring-daemon here
+fi
