@@ -1,5 +1,6 @@
 require "boxen/keychain"
 require "boxen/project"
+require "etc"
 require "fileutils"
 require "json"
 require "octokit"
@@ -302,13 +303,15 @@ module Boxen
     end
     
     def group
-      if RUBY_PLATFORM =~ /darwin/
-        @group || "staff"
-      elsif RUBY_PLATFORM =~ /linux/
-        @group || user
-      else
-        raise "unsupported OS"
-      end
+      @group || Etc.getgrgid(Etc.getpwnam(user).gid).name
+    end
+    
+    def rootuser
+      @rootuser || Etc.getpwuid(0).name
+    end
+    
+    def rootgroup
+      @rootgroup || Etc.getgrgid(0).name
     end
 
     attr_writer :user
